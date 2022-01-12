@@ -8,6 +8,7 @@ const gameController = (() => {
             gameContainer.removeChild(gameContainer.firstChild);
         };
     };
+    //This will create initial screen.
     const createMenu = () => {
         let element = document.createElement('h3');
         element.textContent = "Welcome";
@@ -24,6 +25,7 @@ const gameController = (() => {
         gameContainer.appendChild(element);
         gameContainer.style.flexDirection = "column";
     };
+    //This will clear everything and create initial screen.
     const newGame = () => {
         clearBoard(); createMenu();
     };
@@ -37,7 +39,10 @@ const gameController = (() => {
 const Gameboard = (() => {
     let gameboard = ['X','O','','','X','','O','X','O'];
     const create = () => {
-        const event = function (e) {currentPlayer.play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target))};
+        const event = function (e) {
+            currentPlayer.play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target));
+            e.target.removeEventListener('click', event);
+        };
         for (let i = 0; i < 9; i++) {
             const newSquare = document.createElement('div');
             newSquare.classList.add('square');
@@ -60,7 +65,7 @@ const PlayerGenerator = (name, mark) => {
         Gameboard.gameboard[index] = mark;
         gameContainer.children[index].textContent = mark;
     };
-    return {name, mark, play};
+    return {name, play};
 };
 
 restartBtn.addEventListener('click', gameController.newGame);
