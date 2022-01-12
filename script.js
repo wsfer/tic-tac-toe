@@ -2,6 +2,17 @@ const scoreBoard = document.querySelector('.scoreboard');
 const gameContainer = document.querySelector('.gameContainer');
 const restartBtn = document.querySelector('.restart');
 
+let player1;
+let player2;
+
+const PlayerGenerator = (name, mark) => {
+    const play = (index) => {
+        Gameboard.gameboard[index] = mark;
+        gameContainer.children[index].textContent = mark;
+    };
+    return {name, play};
+};
+
 const gameController = (() => {
     const clearBoard = () => {
         while (gameContainer.firstChild) {
@@ -15,7 +26,7 @@ const gameController = (() => {
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Player";
-        element.addEventListener('click', startGame);
+        element.addEventListener('click', getNames);
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Computer (working)";
@@ -27,11 +38,46 @@ const gameController = (() => {
     };
     //This will clear everything and create initial screen.
     const newGame = () => {
-        clearBoard(); createMenu();
+        clearBoard();
+        createMenu();
+        scoreBoard.textContent = `Game starting ...`;
+    };
+    const createInputs = () => {
+        element = document.createElement('label');
+        element.setAttribute('for', 'playerOne')
+        element.textContent = "Player One";
+        gameContainer.appendChild(element);
+        element = document.createElement('input');
+        element.setAttribute('id', 'playerOne')
+        gameContainer.appendChild(element);
+        element = document.createElement('label');
+        element.setAttribute('for', 'playerTwo')
+        element.textContent = "Player Two";
+        gameContainer.appendChild(element);
+        element = document.createElement('input');
+        element.setAttribute('id', 'playerTwo')
+        gameContainer.appendChild(element);
+    };
+    const getNames = () => {
+        clearBoard();
+        let element = document.createElement('h3');
+        element.textContent = "Player Names: ";
+        gameContainer.appendChild(element);
+        createInputs();
+        element = document.createElement('button');
+        element.textContent = "Start Game";
+        element.addEventListener('click', startGame);
+        gameContainer.appendChild(element);
     };
     const startGame = () => {
+        player1 = PlayerGenerator(document.getElementById('playerOne').value, 'O');
+        player2 = PlayerGenerator(document.getElementById('playerTwo').value, 'X');
         clearBoard();
+        updateScoreBoard();
         Gameboard.create();
+    };
+    const updateScoreBoard = () => {
+        scoreBoard.textContent = `${player1.name} 0 - 0 ${player2.name}`;
     }
     return {newGame, startGame};
 })();
@@ -60,17 +106,7 @@ const Gameboard = (() => {
     return {gameboard, create, update};
 })();
 
-const PlayerGenerator = (name, mark) => {
-    const play = (index) => {
-        Gameboard.gameboard[index] = mark;
-        gameContainer.children[index].textContent = mark;
-    };
-    return {name, play};
-};
-
 restartBtn.addEventListener('click', gameController.newGame);
 
 gameController.newGame();
-const player1 = PlayerGenerator('Jack', 'X');
-const player2 = PlayerGenerator('Jame', 'O');
 let currentPlayer = player1;
