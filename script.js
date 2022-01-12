@@ -63,6 +63,8 @@ const PlayerGenerator = (name, mark) => {
     return {name, mark, play};
 };
 
+restartBtn.addEventListener('click', gameController.newGame);
+
 gameController.newGame();
 const player1 = PlayerGenerator('Jack', 'X');
 const player2 = PlayerGenerator('Jame', 'O');
