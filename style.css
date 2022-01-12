@@ -2,3 +2,29 @@ html, body {
     margin: 0;
     padding: 0;
 }
+
+header, footer {
+    display: flex;
+    justify-content: center;
+    border: 2px solid black;
+}
+
+.gameContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 40px 80px;
+    width: 450px;
+    height: 450px;
+}
+
+.square {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 146px;
+    height: 146px;
+    border: 2px solid black;
+    font-size: 70px;
+    font-weight: bold;
+}
