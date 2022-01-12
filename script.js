@@ -1,4 +1,7 @@
+const scoreBoard = document.querySelector('.scoreboard');
 const gameContainer = document.querySelector('.gameContainer');
+const restartBtn = document.querySelector('.restart');
+
 const gameController = (() => {
     const clearBoard = () => {
         while (gameContainer.firstChild) {
@@ -11,6 +14,7 @@ const gameController = (() => {
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Player";
+        element.addEventListener('click', startGame);
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Computer (working)";
@@ -23,36 +27,43 @@ const gameController = (() => {
     const newGame = () => {
         clearBoard(); createMenu();
     };
-    return {newGame};
+    const startGame = () => {
+        clearBoard();
+        Gameboard.create();
+    }
+    return {newGame, startGame};
 })();
-
-gameController.newGame();
 
 const Gameboard = (() => {
     let gameboard = ['X','O','','','X','','O','X','O'];
+    const create = () => {
+        const event = function (e) {currentPlayer.play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target))};
+        for (let i = 0; i < 9; i++) {
+            const newSquare = document.createElement('div');
+            newSquare.classList.add('square');
+            newSquare.addEventListener('click', event);
+            gameContainer.appendChild(newSquare);
+        };
+    };
     const update = () => {
         
         for (let i = 0; i < 9; i++) {
             const newSquare = document.createElement('div');
             newSquare.textContent = gameboard[i];
-            newSquare.classList.add('square');
-            newSquare.addEventListener('click', function (e) {
-                currentPlayer.play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target));
-            });
-            gameContainer.appendChild(newSquare);
         };
     };
-    return {gameboard, update};
+    return {gameboard, create, update};
 })();
 
 const PlayerGenerator = (name, mark) => {
     const play = (index) => {
         Gameboard.gameboard[index] = mark;
-        Gameboard.update();
+        gameContainer.children[index].textContent = mark;
     };
     return {name, mark, play};
 };
 
+gameController.newGame();
 const player1 = PlayerGenerator('Jack', 'X');
 const player2 = PlayerGenerator('Jame', 'O');
 let currentPlayer = player1;
