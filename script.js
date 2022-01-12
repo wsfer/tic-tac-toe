@@ -6,11 +6,12 @@ let player1;
 let player2;
 
 const PlayerGenerator = (name, mark) => {
+    let round = Math.random();
     const play = (index) => {
         Gameboard.gameboard[index] = mark;
         gameContainer.children[index].textContent = mark;
     };
-    return {name, play};
+    return {name, play, round};
 };
 
 const gameController = (() => {
@@ -78,15 +79,15 @@ const gameController = (() => {
     };
     const updateScoreBoard = () => {
         scoreBoard.textContent = `${player1.name} 0 - 0 ${player2.name}`;
-    }
-    return {newGame, startGame};
+    };
+    return {newGame};
 })();
 
 const Gameboard = (() => {
     let gameboard = ['X','O','','','X','','O','X','O'];
     const create = () => {
         const event = function (e) {
-            currentPlayer.play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target));
+            whoIsNext().play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target));
             e.target.removeEventListener('click', event);
         };
         for (let i = 0; i < 9; i++) {
@@ -96,8 +97,18 @@ const Gameboard = (() => {
             gameContainer.appendChild(newSquare);
         };
     };
+    const whoIsNext = () => {
+        if (player1.round > player2.round) {
+            player1.round = 0;
+            player2.round = 1;
+            return player1;
+        } else {
+            player1.round = 1;
+            player2.round = 0;
+            return player2;
+        }
+    }
     const update = () => {
-        
         for (let i = 0; i < 9; i++) {
             const newSquare = document.createElement('div');
             newSquare.textContent = gameboard[i];
@@ -109,4 +120,3 @@ const Gameboard = (() => {
 restartBtn.addEventListener('click', gameController.newGame);
 
 gameController.newGame();
-let currentPlayer = player1;
