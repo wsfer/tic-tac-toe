@@ -1,12 +1,15 @@
 const scoreBoard = document.querySelector('.scoreboard');
 const gameContainer = document.querySelector('.gameContainer');
 const restartBtn = document.querySelector('.restart');
+const newRndBtn = document.querySelector('.newRound');
 
 let player1;
 let player2;
 
 const PlayerGenerator = (name, mark) => {
     let round = Math.random();
+    let score = 0;
+    const getName = () => name;
     const play = (index) => {
         Gameboard.gameboard[index] = mark;
         gameContainer.children[index].textContent = mark;
@@ -19,10 +22,10 @@ const PlayerGenerator = (name, mark) => {
         Gameboard.checkWinner(0, 4, 8);
         Gameboard.checkWinner(2, 4, 6);
     };
-    return {name, mark, play, round};
+    return {getName, score, play, round};
 };
 
-const gameController = (() => {
+const displayController = (() => {
     const clearBoard = () => {
         while (gameContainer.firstChild) {
             gameContainer.removeChild(gameContainer.firstChild);
@@ -31,7 +34,7 @@ const gameController = (() => {
     //This will create initial screen.
     const createMenu = () => {
         let element = document.createElement('h3');
-        element.textContent = "Welcome";
+        element.textContent = "How do you like to play?";
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Player";
@@ -40,16 +43,14 @@ const gameController = (() => {
         element = document.createElement('button');
         element.textContent = "Player vs Computer (working)";
         gameContainer.appendChild(element);
-        element = document.createElement('button');
-        element.textContent = "Credits (working?)";
-        gameContainer.appendChild(element);
         gameContainer.style.flexDirection = "column";
     };
     //This will clear everything and create initial screen.
     const newGame = () => {
         clearBoard();
         createMenu();
-        scoreBoard.textContent = `Game starting ...`;
+        newRndBtn.style.visibility = "hidden";
+        scoreBoard.textContent = '';
         Gameboard.gameboard = ['','','','','','','','',''];
     };
     const createInputs = () => {
@@ -87,10 +88,17 @@ const gameController = (() => {
         updateScoreBoard();
         Gameboard.create();
     };
+    const newRound = () => {
+        displayController.clearBoard();
+        Gameboard.create();
+        displayController.updateScoreBoard();
+        newRndBtn.style.visibility = "hidden";
+        Gameboard.gameboard = ['','','','','','','','',''];
+    }
     const updateScoreBoard = () => {
-        scoreBoard.textContent = `${player1.name} 0 - 0 ${player2.name}`;
+        scoreBoard.textContent = `${player1.getName()} ${player1.score} - ${player2.score} ${player2.getName()}`;
     };
-    return {newGame};
+    return {newGame, updateScoreBoard, newRound, clearBoard};
 })();
 
 const Gameboard = (() => {
@@ -131,20 +139,29 @@ const Gameboard = (() => {
                 gameContainer.children[a].style.backgroundColor = "orange";
                 gameContainer.children[b].style.backgroundColor = "orange";
                 gameContainer.children[c].style.backgroundColor = "orange";
-                console.log(`${player2.name} is the Winner!`);
+                scoreBoard.textContent = `${player2.getName()} won the round!`;
+                player2.score++;
+                newRndBtn.style.visibility = "visible";
             };
         } else if (Gameboard.gameboard[a] === 'O') {
             if (Gameboard.gameboard[a] === Gameboard.gameboard[b] && Gameboard.gameboard[b] === Gameboard.gameboard[c]) {
                 gameContainer.children[a].style.backgroundColor = "orange";
                 gameContainer.children[b].style.backgroundColor = "orange";
                 gameContainer.children[c].style.backgroundColor = "orange";
-                console.log(`${player1.name} is the Winner!`);
+                scoreBoard.textContent = `${player1.getName()} won the round!`;
+                player1.score++;
+                newRndBtn.style.visibility = "visible";
             };
+        };
+        if (Gameboard.gameboard.filter((squareContent) => squareContent === '').length === 0) {
+            scoreBoard.textContent = "It's a Tie!";
+            newRndBtn.style.visibility = "visible";
         };
     };
     return {gameboard, create, checkWinner};
 })();
 
-restartBtn.addEventListener('click', gameController.newGame);
+restartBtn.addEventListener('click', displayController.newGame);
+newRndBtn.addEventListener('click', displayController.newRound);
 
-gameController.newGame();
+displayController.newGame();
