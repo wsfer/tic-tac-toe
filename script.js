@@ -9,7 +9,13 @@ let player2;
 const PlayerGenerator = (name, mark) => {
     let round = Math.random();
     let score = 0;
-    const getName = () => name;
+    const getName = () => {
+        if (name === '') {
+            return 'player';
+        } else {
+            return name;
+        }
+    }
     const play = (index) => {
         Gameboard.gameboard[index] = mark;
         gameContainer.children[index].textContent = mark;
