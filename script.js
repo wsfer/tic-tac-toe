@@ -56,7 +56,7 @@ const displayController = (() => {
         clearBoard();
         createMenu();
         newRndBtn.style.visibility = "hidden";
-        scoreBoard.textContent = '';
+        scoreBoard.textContent = '---';
         Gameboard.gameboard = ['','','','','','','','',''];
     };
     const createInputs = () => {

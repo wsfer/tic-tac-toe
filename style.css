@@ -6,7 +6,17 @@ html, body {
 header, footer {
     display: flex;
     justify-content: center;
-    border: 2px solid black;
+    background-color: rgb(4, 4, 4);
+}
+
+h1 {
+    color: goldenrod;
+}
+
+a {
+    margin: 16px;
+    text-decoration: none;
+    color: goldenrod;
 }
 
 .container {
@@ -14,6 +24,7 @@ header, footer {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: rgb(165, 9, 9);
 }
 
 .gameContainer {
@@ -25,13 +36,51 @@ header, footer {
     margin: 40px;
     width: 450px;
     height: 450px;
+    background-color: orangered;
 }
 
 .gameContainer button {
+    margin-top: 32px;
+}
+
+button {
     width: 150px;
     margin: 10px;
     border: 2px solid black;
+    border-radius: 16px;
+    background-color: rgb(4, 4, 4);
+    color: goldenrod;
+    font-weight: bold;
+}
 
+label {
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+input {
+    border: 2px solid black;
+    background-color: gray;
+}
+
+.buttons {
+    margin-bottom: 20px;
+    padding: 8px;
+}
+
+.buttons button {
+    margin: 20px;
+    margin-top: 0;
+}
+
+.scoreboard {
+    text-align: center;
+    width: 300px;
+    margin-top: 40px;
+    padding: 8px;
+    background-color: rgb(4, 4, 4);
+    color: goldenrod;
+    border-radius: 16px;
 }
 
 .square {
@@ -43,4 +92,11 @@ header, footer {
     border: 2px solid black;
     font-size: 70px;
     font-weight: bold;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: white;
+}
+
+button:hover {
+    background-color:goldenrod;
+    color: black;
 }
