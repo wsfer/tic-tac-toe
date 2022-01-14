@@ -16,8 +16,8 @@ const PlayerGenerator = (name, mark) => {
             return name.slice(0, 11);
         } else {
             return name;
-        }
-    }
+        };
+    };
     const play = (index) => {
         Gameboard.gameboard[index] = mark;
         gameContainer.children[index].textContent = mark;
@@ -50,6 +50,7 @@ const displayController = (() => {
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Computer (working)";
+        element.addEventListener('click', getPlayerName);
         gameContainer.appendChild(element);
         gameContainer.style.flexDirection = "column";
     };
@@ -89,13 +90,37 @@ const displayController = (() => {
         element.addEventListener('click', startGame);
         gameContainer.appendChild(element);
     };
+    //This will be called when play agaisnt computer is selected.
+    const getPlayerName = () => {
+        clearBoard();
+        let element = document.createElement('h3');
+        element.textContent = "Your name: ";
+        gameContainer.appendChild(element);
+        element = document.createElement('input');
+        element.setAttribute('id', 'playerOne');
+        gameContainer.appendChild(element);
+        element = document.createElement('button');
+        element.textContent = "Start Game";
+        element.addEventListener('click', startGame);
+        gameContainer.appendChild(element)
+
+    }
     const startGame = () => {
         player1 = PlayerGenerator(document.getElementById('playerOne').value, 'O');
-        player2 = PlayerGenerator(document.getElementById('playerTwo').value, 'X');
+        if (document.getElementById('playerTwo')) {
+            player2 = PlayerGenerator(document.getElementById('playerTwo').value, 'X');
+        } else {
+            player2 = PlayerGenerator(randomName(), 'X');
+        }
+        
         clearBoard();
         updateScoreBoard();
         Gameboard.create();
     };
+    const randomName = () => {
+        let names = ['Mark', 'Beth', 'Miguel', 'Marcos', 'Sasha'];
+        return names[Math.round(Math.random()*names.length)];
+    }
     const newRound = () => {
         displayController.clearBoard();
         Gameboard.create();
