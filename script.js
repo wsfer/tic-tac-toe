@@ -134,6 +134,13 @@ const Gameboard = (() => {
         };
     };
     const checkWinner = (a, b, c) => {
+        if (player1.score === 3) {
+            scoreBoard.textContent = `${player1.getName()} is the Winner!`;
+            newRndBtn.style.visibility = "hidden";
+        } else if (player2.score === 3) {
+            scoreBoard.textContent = `${player1.getName()} is the Winner!`;
+            newRndBtn.style.visibility = "hidden";
+        };
         if (Gameboard.gameboard[a] === 'X') {
             if (Gameboard.gameboard[a] === Gameboard.gameboard[b] && Gameboard.gameboard[b] === Gameboard.gameboard[c]) {
                 gameContainer.children[a].style.backgroundColor = "orange";
@@ -142,6 +149,7 @@ const Gameboard = (() => {
                 scoreBoard.textContent = `${player2.getName()} won the round!`;
                 player2.score++;
                 newRndBtn.style.visibility = "visible";
+                return;
             };
         } else if (Gameboard.gameboard[a] === 'O') {
             if (Gameboard.gameboard[a] === Gameboard.gameboard[b] && Gameboard.gameboard[b] === Gameboard.gameboard[c]) {
@@ -151,6 +159,7 @@ const Gameboard = (() => {
                 scoreBoard.textContent = `${player1.getName()} won the round!`;
                 player1.score++;
                 newRndBtn.style.visibility = "visible";
+                return;
             };
         };
         if (Gameboard.gameboard.filter((squareContent) => squareContent === '').length === 0) {
