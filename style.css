@@ -81,6 +81,7 @@ input {
     background-color: rgb(4, 4, 4);
     color: goldenrod;
     border-radius: 16px;
+    font-weight: bold;
 }
 
 .square {
