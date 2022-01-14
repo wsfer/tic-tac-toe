@@ -12,6 +12,8 @@ const PlayerGenerator = (name, mark) => {
     const getName = () => {
         if (name === '') {
             return 'player';
+        } else if (name.length > 10) {
+            return name.slice(0, 11);
         } else {
             return name;
         }
