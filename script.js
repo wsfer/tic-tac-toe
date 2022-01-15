@@ -5,6 +5,7 @@ const newRndBtn = document.querySelector('.newRound');
 
 let player1;
 let player2;
+let computerPlay;
 
 const PlayerGenerator = (name, mark) => {
     let round = Math.random();
@@ -109,8 +110,10 @@ const displayController = (() => {
         player1 = PlayerGenerator(document.getElementById('playerOne').value, 'O');
         if (document.getElementById('playerTwo')) {
             player2 = PlayerGenerator(document.getElementById('playerTwo').value, 'X');
+            computerPlay = false;
         } else {
             player2 = PlayerGenerator(randomName(), 'X');
+            computerPlay = true;
         }
         
         clearBoard();
@@ -140,6 +143,9 @@ const Gameboard = (() => {
         const event = function (e) {
             whoIsNext().play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target));
             e.target.removeEventListener('click', event);
+            if (computerPlay === true) {
+                computerAI.easyAI();
+            }
         };
         gameContainer.style.flexDirection = "row";
         for (let i = 0; i < 9; i++) {
@@ -200,10 +206,24 @@ const Gameboard = (() => {
             newRndBtn.style.visibility = "visible";
         };
     };
-    return {gameboard, create, checkWinner};
+    return {gameboard, create, checkWinner, whoIsNext};
 })();
 
 restartBtn.addEventListener('click', displayController.newGame);
 newRndBtn.addEventListener('click', displayController.newRound);
 
 displayController.newGame();
+
+//Computer AI
+
+const computerAI = (() => {
+    const easyAI = () => {
+        let randomNumber = Math.round(Math.random()*9);
+        if (Gameboard.gameboard[randomNumber] === '') {
+            Gameboard.whoIsNext().play(randomNumber);
+        } else {
+            easyAI();
+        };
+    };
+    return {easyAI};
+})();
