@@ -5,13 +5,13 @@ const newRndBtn = document.querySelector('.newRound');
 
 let player1;
 let player2;
-let computerPlay;
 
 const PlayerGenerator = (name, mark) => {
     let round = Math.random();
-    let score = 0;
+    let _score = 0;
+    const getScore = () => _score;
     const getName = () => {
-        if (name === '') {
+        if (!name) {
             return 'player';
         } else if (name.length > 10) {
             return name.slice(0, 11);
@@ -20,18 +20,24 @@ const PlayerGenerator = (name, mark) => {
         };
     };
     const play = (index) => {
-        Gameboard.gameboard[index] = mark;
+        let index2 = 0;
         gameContainer.children[index].textContent = mark;
-        Gameboard.checkWinner(0, 1, 2);
-        Gameboard.checkWinner(3, 4, 5);
-        Gameboard.checkWinner(6, 7, 8);
-        Gameboard.checkWinner(0, 3, 6);
-        Gameboard.checkWinner(1, 4, 7);
-        Gameboard.checkWinner(2, 5, 8);
-        Gameboard.checkWinner(0, 4, 8);
-        Gameboard.checkWinner(2, 4, 6);
+        while (index > 2) {
+            index2++;
+            index = index - 3;
+        }
+        Gameboard.gameboard[index][index2] = mark;
+        if (Gameboard.checkWinner(mark)) {
+            _score++;
+            if (_score === 3) {
+                scoreBoard.textContent = `${getName()} is the Winner`;
+            } else {
+                newRndBtn.style.visibility = "visible";
+                scoreBoard.textContent = `${getName()} won the round`;
+            };
+        };
     };
-    return {getName, score, play, round};
+    return {getName, getScore, play, round};
 };
 
 const displayController = (() => {
@@ -47,11 +53,11 @@ const displayController = (() => {
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Player";
-        element.addEventListener('click', getNames);
+        element.addEventListener('click', getNamesMenu);
         gameContainer.appendChild(element);
         element = document.createElement('button');
         element.textContent = "Player vs Computer (working)";
-        element.addEventListener('click', getPlayerName);
+        element.addEventListener('click', getPlayerNameMenu);
         gameContainer.appendChild(element);
         gameContainer.style.flexDirection = "column";
     };
@@ -61,9 +67,14 @@ const displayController = (() => {
         createMenu();
         newRndBtn.style.visibility = "hidden";
         scoreBoard.textContent = '---';
-        Gameboard.gameboard = ['','','','','','','','',''];
+        Gameboard.gameboard = [['','',''],['','',''],['','','']];
     };
-    const createInputs = () => {
+    //This will be called when multiplayer is selected.
+    const getNamesMenu = () => {
+        clearBoard();
+        let element = document.createElement('h3');
+        element.textContent = "Player Names: ";
+        gameContainer.appendChild(element);
         element = document.createElement('label');
         element.setAttribute('for', 'playerOne')
         element.textContent = "Player One";
@@ -78,21 +89,13 @@ const displayController = (() => {
         element = document.createElement('input');
         element.setAttribute('id', 'playerTwo')
         gameContainer.appendChild(element);
-    };
-    //This will create the interface to get player names.
-    const getNames = () => {
-        clearBoard();
-        let element = document.createElement('h3');
-        element.textContent = "Player Names: ";
-        gameContainer.appendChild(element);
-        createInputs();
         element = document.createElement('button');
         element.textContent = "Start Game";
         element.addEventListener('click', startGame);
         gameContainer.appendChild(element);
     };
     //This will be called when play agaisnt computer is selected.
-    const getPlayerName = () => {
+    const getPlayerNameMenu = () => {
         clearBoard();
         let element = document.createElement('h3');
         element.textContent = "Your name: ";
@@ -129,23 +132,20 @@ const displayController = (() => {
         Gameboard.create();
         displayController.updateScoreBoard();
         newRndBtn.style.visibility = "hidden";
-        Gameboard.gameboard = ['','','','','','','','',''];
+        Gameboard.gameboard = [['','',''],['','',''],['','','']];
     }
     const updateScoreBoard = () => {
-        scoreBoard.textContent = `${player1.getName()} ${player1.score} - ${player2.score} ${player2.getName()}`;
+        scoreBoard.textContent = `${player1.getName()} ${player1.getScore()} - ${player2.getScore()} ${player2.getName()}`;
     };
     return {newGame, updateScoreBoard, newRound, clearBoard};
 })();
 
 const Gameboard = (() => {
-    let gameboard = ['','','','','','','','',''];
+    let gameboard = [['','',''],['','',''],['','','']];
     const create = () => {
         const event = function (e) {
             whoIsNext().play(Array.from(document.querySelectorAll('.gameContainer > .square')).indexOf(e.target));
             e.target.removeEventListener('click', event);
-            if (computerPlay === true) {
-                computerAI.easyAI();
-            }
         };
         gameContainer.style.flexDirection = "row";
         for (let i = 0; i < 9; i++) {
@@ -172,40 +172,43 @@ const Gameboard = (() => {
             return player2;
         };
     };
-    const checkWinner = (a, b, c) => {
-        if (player1.score === 3) {
-            scoreBoard.textContent = `${player1.getName()} is the Winner!`;
-            newRndBtn.style.visibility = "hidden";
-        } else if (player2.score === 3) {
-            scoreBoard.textContent = `${player1.getName()} is the Winner!`;
-            newRndBtn.style.visibility = "hidden";
-        };
-        if (Gameboard.gameboard[a] === 'X') {
-            if (Gameboard.gameboard[a] === Gameboard.gameboard[b] && Gameboard.gameboard[b] === Gameboard.gameboard[c]) {
-                gameContainer.children[a].style.backgroundColor = "orange";
-                gameContainer.children[b].style.backgroundColor = "orange";
-                gameContainer.children[c].style.backgroundColor = "orange";
-                scoreBoard.textContent = `${player2.getName()} won the round!`;
-                player2.score++;
-                newRndBtn.style.visibility = "visible";
-                return;
-            };
-        } else if (Gameboard.gameboard[a] === 'O') {
-            if (Gameboard.gameboard[a] === Gameboard.gameboard[b] && Gameboard.gameboard[b] === Gameboard.gameboard[c]) {
-                gameContainer.children[a].style.backgroundColor = "orange";
-                gameContainer.children[b].style.backgroundColor = "orange";
-                gameContainer.children[c].style.backgroundColor = "orange";
-                scoreBoard.textContent = `${player1.getName()} won the round!`;
-                player1.score++;
-                newRndBtn.style.visibility = "visible";
-                return;
+    const checkWinner = (mark) => {
+        //Check rows.
+        for (let i = 0; i < 3; i++) {
+            if (Gameboard.gameboard[0][i] === mark &&
+                Gameboard.gameboard[1][i] === mark &&
+                Gameboard.gameboard[2][i] === mark) {
+                _changeSquaresColor(i*3, i*3+1, i*3+2);
+                return true;
             };
         };
-        if (Gameboard.gameboard.filter((squareContent) => squareContent === '').length === 0) {
-            scoreBoard.textContent = "It's a Tie!";
-            newRndBtn.style.visibility = "visible";
+        //Check columns.
+        for (let i = 0; i < 3; i++) {
+            if (Gameboard.gameboard[i][0] === mark &&
+                Gameboard.gameboard[i][1] === mark &&
+                Gameboard.gameboard[i][2] === mark) {
+                _changeSquaresColor(i, i+3, i+6);
+                return true;
+            };
+        };
+        //Check diagonals.
+        if (Gameboard.gameboard[0][0] === mark &&
+            Gameboard.gameboard[1][1] === mark &&
+            Gameboard.gameboard[2][2] === mark) {
+            _changeSquaresColor(0, 4, 8);
+            return true;
+        } else if (Gameboard.gameboard[2][0] === mark &&
+            Gameboard.gameboard[1][1] === mark &&
+            Gameboard.gameboard[0][2] === mark) {
+            _changeSquaresColor(2, 4, 6);
+            return true;
         };
     };
+    const _changeSquaresColor = (index1, index2, index3) => {
+        gameContainer.children[index1].style.backgroundColor = "orange";
+        gameContainer.children[index2].style.backgroundColor = "orange";
+        gameContainer.children[index3].style.backgroundColor = "orange";
+    }
     return {gameboard, create, checkWinner, whoIsNext};
 })();
 
