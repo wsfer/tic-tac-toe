@@ -6,7 +6,7 @@ const newRndBtn = document.querySelector('.newRound');
 let player1;
 let player2;
 let nextPlayer = [];
-let haveWinner = false;
+let roundFinished = false;
 
 const PlayerGenerator = (name, mark) => {
     let _score = 0;
@@ -33,7 +33,7 @@ const PlayerGenerator = (name, mark) => {
         }
         gameController.gameboard[index][index2] = mark;
         if (gameController.checkWinner(mark)) {
-            haveWinner = true;
+            roundFinished = true;
             _score++;
             if (_score === 3) {
                 scoreBoard.textContent = `${getName()} is the Winner`;
@@ -42,8 +42,19 @@ const PlayerGenerator = (name, mark) => {
                 scoreBoard.textContent = `${getName()} won the round`;
             };
         };
+        //This will check if it's a tie.
+        for (let i = 0; i < 9; i++) {
+            if (gameContainer.children[i].textContent === '') {
+                break;
+            };
+            if (i === 8) {
+                roundFinished = true;
+                scoreBoard.textContent = `It's a Tie`;
+                newRndBtn.style.visibility = "visible";
+            };
+        };
         nextPlayer.shift();
-        if (nextPlayer[0].isComputer && !haveWinner) {
+        if (nextPlayer[0].isComputer && !roundFinished) {
             nextPlayer[0].play(computerAI.computerMove());
         };
     };
@@ -142,7 +153,7 @@ const displayController = (() => {
         _clearBoard();
         _updateScoreBoard();
         _createGameboard();
-        haveWinner = false;
+        roundFinished = false;
         if (nextPlayer[0].isComputer) {
             nextPlayer[0].play(computerAI.computerMove());
         };
@@ -165,7 +176,7 @@ const displayController = (() => {
         return names[Math.round(Math.random()*names.length)];
     };
     const newRound = () => {
-        haveWinner = false;
+        roundFinished = false;
         _clearBoard();
         _createGameboard();
         _updateScoreBoard();
