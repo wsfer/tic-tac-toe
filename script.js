@@ -6,6 +6,7 @@ const newRndBtn = document.querySelector('.newRound');
 let player1;
 let player2;
 let nextPlayer = [];
+let haveWinner = false;
 
 const PlayerGenerator = (name, mark) => {
     let _score = 0;
@@ -24,6 +25,7 @@ const PlayerGenerator = (name, mark) => {
     const play = (index) => {
         nextPlayer.push(nextPlayer[0]);
         let index2 = 0;
+        console.log(index);
         gameContainer.children[index].textContent = mark;
         while (index > 2) {
             index2++;
@@ -31,6 +33,7 @@ const PlayerGenerator = (name, mark) => {
         }
         gameController.gameboard[index][index2] = mark;
         if (gameController.checkWinner(mark)) {
+            haveWinner = true;
             _score++;
             if (_score === 3) {
                 scoreBoard.textContent = `${getName()} is the Winner`;
@@ -40,8 +43,8 @@ const PlayerGenerator = (name, mark) => {
             };
         };
         nextPlayer.shift();
-        if (nextPlayer[0].isComputer) {
-            setTimeout(() => {nextPlayer[0].play(Math.round(Math.random()*8))}, 1000);
+        if (nextPlayer[0].isComputer && !haveWinner) {
+            nextPlayer[0].play(computerAI.computerMove());
         };
     };
     return {getName, getScore, play, getMark, isComputer};
@@ -63,7 +66,7 @@ const displayController = (() => {
         element.addEventListener('click', _getNamesMenu);
         gameContainer.appendChild(element);
         element = document.createElement('button');
-        element.textContent = "Player vs Computer (working)";
+        element.textContent = "Player vs Computer";
         element.addEventListener('click', _getPlayerNameMenu);
         gameContainer.appendChild(element);
         gameContainer.style.flexDirection = "column";
@@ -117,13 +120,12 @@ const displayController = (() => {
 
     }
     const _startGame = () => {
+        nextPlayer = [];
         player1 = PlayerGenerator(document.getElementById('playerOne').value, 'O');
         if (document.getElementById('playerTwo')) {
             player2 = PlayerGenerator(document.getElementById('playerTwo').value, 'X');
-            computerPlay = false;
         } else {
             player2 = PlayerGenerator(_randomName(), 'X');
-            computerPlay = true;
             player2.isComputer = true;
         };
         const whoWillStart = (() => {
@@ -140,8 +142,9 @@ const displayController = (() => {
         _clearBoard();
         _updateScoreBoard();
         _createGameboard();
+        haveWinner = false;
         if (nextPlayer[0].isComputer) {
-            nextPlayer[0].play(Math.round(Math.random()*8));
+            nextPlayer[0].play(computerAI.computerMove());
         };
     };
     const _createGameboard = () => {
@@ -160,14 +163,18 @@ const displayController = (() => {
     const _randomName = () => {
         let names = ['Mark', 'Beth', 'Miguel', 'Marcos', 'Sasha'];
         return names[Math.round(Math.random()*names.length)];
-    }
+    };
     const newRound = () => {
+        haveWinner = false;
         _clearBoard();
         _createGameboard();
         _updateScoreBoard();
         newRndBtn.style.visibility = "hidden";
         gameController.gameboard = [['','',''],['','',''],['','','']];
-    }
+        if (nextPlayer[0].isComputer) {
+            nextPlayer[0].play(computerAI.computerMove());
+        };
+    };
     const _updateScoreBoard = () => {
         scoreBoard.textContent = `${player1.getName()} ${player1.getScore()} - ${player2.getScore()} ${player2.getName()}`;
     };
@@ -224,12 +231,155 @@ displayController.newGame();
 //Computer AI
 
 const computerAI = (() => {
-    let _enemy = player1;
-    const willEnemyWin = () => {
-
+    const _willAnyoneWin = (mark) => {
+        //Check rows.
+        for (let i = 0; i < 3; i++) {
+            let pattern = [gameContainer.children[i*3].textContent, gameContainer.children[i*3+1].textContent, gameContainer.children[i*3+2].textContent];
+            if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark ||
+                pattern[0] === mark && pattern[1] === '' && pattern[2] === mark ||
+                pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+                return true;
+            };
+        };
+        //Check columns.
+        for (let i = 0; i < 3; i++) {
+            let pattern = [gameContainer.children[i].textContent, gameContainer.children[i+3].textContent, gameContainer.children[i+6].textContent];
+            if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark ||
+                pattern[0] === mark && pattern[1] === '' && pattern[2] === mark ||
+                pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+                return true;
+            };
+        };
+        //Check diagonals.
+        let pattern = [gameContainer.children[0].textContent, gameContainer.children[4].textContent, gameContainer.children[8].textContent]
+        if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark ||
+            pattern[0] === mark && pattern[1] === '' && pattern[2] === mark ||
+            pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+            return true;
+        };
+        pattern = [gameContainer.children[2].textContent, gameContainer.children[4].textContent, gameContainer.children[6].textContent];
+        if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark ||
+            pattern[0] === mark && pattern[1] === '' && pattern[2] === mark ||
+            pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+            return true;
+        };
+        return false;
+    };
+    const _winningMove = (mark) => {
+        //Check rows.
+        for (let i = 0; i < 3; i++) {
+            let pattern = [gameContainer.children[i*3].textContent, gameContainer.children[i*3+1].textContent, gameContainer.children[i*3+2].textContent];
+            if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark) {
+                return i*3;
+            };
+            if (pattern[0] === mark && pattern[1] === '' && pattern[2] === mark) {
+                return i*3+1;
+            };
+            if (pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+                return i*3+2;
+            };
+        };
+        //Check columns.
+        for (let i = 0; i < 3; i++) {
+            let pattern = [gameContainer.children[i].textContent, gameContainer.children[i+3].textContent, gameContainer.children[i+6].textContent];
+            if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark) {
+                return i;
+            };
+            if (pattern[0] === mark && pattern[1] === '' && pattern[2] === mark) {
+                return i+3;
+            };
+            if (pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+                return i+6;
+            };
+        };
+        //Check diagonals.
+        let pattern = [gameContainer.children[0].textContent, gameContainer.children[4].textContent, gameContainer.children[8].textContent]
+        if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark) {
+            return 0;
+        };
+        if (pattern[0] === mark && pattern[1] === '' && pattern[2] === mark) {
+            return 4;
+        };
+        if (pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+            return 8;
+        };
+        pattern = [gameContainer.children[2].textContent, gameContainer.children[4].textContent, gameContainer.children[6].textContent];
+        if (pattern[0] === '' && pattern[1] === mark && pattern[2] === mark) {
+            return 2;
+        };
+        if (pattern[0] === mark && pattern[1] === '' && pattern[2] === mark) {
+            return 4;
+        };
+        if (pattern[0] === mark && pattern[1] === mark && pattern[2] === '') {
+            return 6;
+        };
+    };
+    const _selectAMove = () => {
+        let tacticalMoves = [0, 2, 6, 8];
+        //The "checkmate".
+        if (gameContainer.children[0].textContent === 'X' && gameContainer.children[8].textContent === 'X') {
+            if (gameContainer.children[1].textContent === '' &&
+                gameContainer.children[5].textContent === '' &&
+                gameContainer.children[2].textContent === '') {
+                return 2;
+            };
+            if (gameContainer.children[3].textContent === '' &&
+                gameContainer.children[7].textContent === '' &&
+                gameContainer.children[6].textContent === '') {
+                return 6;
+            };
+        };
+        if (gameContainer.children[2].textContent === 'X' && gameContainer.children[6].textContent === 'X') {
+            if (gameContainer.children[1].textContent === '' &&
+                gameContainer.children[3].textContent === '' &&
+                gameContainer.children[0].textContent === '') {
+                return 0;
+            };
+            if (gameContainer.children[5].textContent === '' &&
+                gameContainer.children[7].textContent === '' &&
+                gameContainer.children[8].textContent === '') {
+                return 8;
+            };
+        };
+        if (gameContainer.children[0].textContent === 'X' && gameContainer.children[8].textContent === '') {
+            return 8;
+        } else if (gameContainer.children[0].textContent === '' && gameContainer.children[8].textContent === 'X') {
+            return 0;
+        };
+        if (gameContainer.children[2].textContent === 'X' && gameContainer.children[6].textContent === '') {
+            return 6;
+        } else if (gameContainer.children[2].textContent === '' && gameContainer.children[6].textContent === 'X') {
+            return 2;
+        };
+        //First random move if everything is clean.
+        if (gameContainer.children[0].textContent === '' &&
+            gameContainer.children[2].textContent === '' &&
+            gameContainer.children[6].textContent === '' &&
+            gameContainer.children[8].textContent === '') {
+            return tacticalMoves[Math.round(Math.random()*3)];
+        };
+        //Last choice.
+        if (gameContainer.children[0].textContent === '') {return 0};
+        if (gameContainer.children[2].textContent === '') {return 2};
+        if (gameContainer.children[6].textContent === '') {return 6};
+        if (gameContainer.children[8].textContent === '') {return 8};
+        //Last 'random' choice.
+        for (let i = 0; i < 9; i++) {
+            if (gameContainer.children[i].textContent === '') {
+                return i;
+            };
+        };
     };
     const computerMove = () => {
-
+        if (_willAnyoneWin('X')) {
+            //This will check if computer can win and do the finish move.
+            return _winningMove('X');
+        } else if (_willAnyoneWin('O')) {
+            //And this will check if enemy can win and prevent it from happening.
+            return _winningMove('O');
+        } else {
+            return _selectAMove();
+        };
     };
     return {computerMove};
 })();
