@@ -69,10 +69,7 @@ const displayController = (() => {
     };
     //This will create initial screen.
     const _createMenu = () => {
-        let element = document.createElement('h3');
-        element.textContent = "How do you like to play?";
-        gameContainer.appendChild(element);
-        element = document.createElement('button');
+        let element = document.createElement('button');
         element.textContent = "Player vs Player";
         element.addEventListener('click', _getNamesMenu);
         gameContainer.appendChild(element);
@@ -87,14 +84,14 @@ const displayController = (() => {
         _clearBoard();
         _createMenu();
         newRndBtn.style.visibility = "hidden";
-        scoreBoard.textContent = '---';
+        scoreBoard.textContent = '--- Scoreboard ---';
         gameController.gameboard = [['','',''],['','',''],['','','']];
     };
     //This will be called when multiplayer is selected.
     const _getNamesMenu = () => {
         _clearBoard();
         let element = document.createElement('h3');
-        element.textContent = "Player Names: ";
+        element.textContent = "Enter Player Names: ";
         gameContainer.appendChild(element);
         element = document.createElement('label');
         element.setAttribute('for', 'playerOne')
@@ -119,7 +116,7 @@ const displayController = (() => {
     const _getPlayerNameMenu = () => {
         _clearBoard();
         let element = document.createElement('h3');
-        element.textContent = "Your name: ";
+        element.textContent = "Enter Your name: ";
         gameContainer.appendChild(element);
         element = document.createElement('input');
         element.setAttribute('id', 'playerOne');
